@@ -5,6 +5,12 @@ class Compiler {
   end: boolean = false
   code: string
   char: string
+
+  assignment: ['var', 'const']
+  blocks: ['while']
+
+  ts: string = ''
+
   constructor(code: string) {
     this.code = code
     this.char = this.code[this.i]
@@ -18,7 +24,6 @@ class Compiler {
 
   compile() {
     while (!this.end) {
-      console.log(this.char)
       this.move()
     }
   }
