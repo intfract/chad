@@ -16,16 +16,17 @@ class Compiler {
   separator: string = ','
   stoppers: string = ';\n'
   quotes: string = '"'
+  brackets: string = '()[]{}'
 
   maps: Record<string, Record<string, string>> = {
-    'ts': {
+    ts: {
       '<-': '=',
       '=': '==',
       'var': 'let',
       'int': 'number',
       'double': 'number',
     },
-    'py': {
+    py: {
       '<-': '=',
       '=': '==',
       ';': '\n',
@@ -36,9 +37,12 @@ class Compiler {
   ts: string = ''
   py: string = ''
 
-  constructor(code: string) {
+  io: Record<string, string>
+
+  constructor(code: string, io: Record<string, string>) {
     this.code = code
     this.char = this.code[this.i]
+    this.io = io
   }
 
   move() {
@@ -113,6 +117,11 @@ class Compiler {
   compile(): Record<string, string> {
     let temp: string
     while (!this.end) {
+      if (this.brackets.includes(this.char)) {
+        this.addToAll(this.char, ['ts', 'py'])
+        this.move()
+        continue
+      }
       if (this.formatting.includes(this.char)) {
         // this.ts += ' '
         // if (!this.assignment.includes(temp)) this.py += ' '
@@ -174,14 +183,21 @@ class Compiler {
         continue
       }
     }
-    return {
-      ts: this.ts,
-      py: this.py,
+    let o: Record<string, string> = {}
+    let comment: string
+    for (const [key, value] of Object.entries(this.io)) {
+      if (key === 'ts') comment = '//'
+      else if (key === 'py') comment = '#'
+      o[key] = `${value}\n\n${comment + ' ' + key}\n${this[key]}`
     }
+    return o
   }
 }
 
-const compiler = new Compiler(fs.readFileSync('giga.chad', 'utf-8'))
+const compiler = new Compiler(fs.readFileSync('giga.chad', 'utf-8'), {
+  ts: fs.readFileSync('scripts/io.ts', 'utf-8'),
+  py: fs.readFileSync('scripts/io.py', 'utf-8'),
+})
 const compiled = compiler.compile()
 console.log(compiled)
 for (const [key, value] of Object.entries(compiled)) {

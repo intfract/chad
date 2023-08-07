@@ -9,8 +9,3 @@ def read(path: str):
 def write(path: str, text: str):
   with open(path, "w") as f:
     return f.write(text)
-
-# py
-x:int=0
-y:str="Hello, world!"
-output(y)

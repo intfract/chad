@@ -13,6 +13,3 @@ function write(path: string, text: string) {
   fs.writeFileSync(path, text)
   return text
 }
-
-// ts
-let x:number=0;let y:string="Hello, world!";output(y)
