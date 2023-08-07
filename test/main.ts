@@ -15,4 +15,4 @@ function write(path: string, text: string) {
 }
 
 // ts
-let x:number=0;let y:string="Hello, world!";output(y)
+let x:number=0;let y:string="Hello, world!";output(y);
