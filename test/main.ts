@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 
-function output(message: string) {
+function output(message: any) {
   console.log(message)
   return message
 }
@@ -15,4 +15,4 @@ function write(path: string, text: string) {
 }
 
 // ts
-let x:number=0;let y:string="Hello, world!";output(y);
+let x:number=0;let y:string="Hello, world!";output(x+1);

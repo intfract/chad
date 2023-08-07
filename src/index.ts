@@ -9,9 +9,9 @@ class Compiler {
   digits: string = '.0123456789'
   letters: string = 'qwertyuiopasdfghjklzxcvbnm'
   assignment: string[] = ['var', 'const']
-  blocks: string[] = ['while']
-  symbols: string = ':<=>-+'
-  operators: string[] = ['<-', '->', '=', '<', '>', '<=', '=>', ':', '-', '+']
+  blocks: string[] = ['while', 'func']
+  symbols: string = ':<=>+-*/'
+  operators: string[] = ['<-', '->', '=', '<', '>', '<=', '=>', ':', '+', '-', '*', '/']
   formatting: string = ' \t'
   separator: string = ','
   stoppers: string = ';\n'
@@ -25,12 +25,14 @@ class Compiler {
       'var': 'let',
       'int': 'number',
       'double': 'number',
+      'func': 'function',
     },
     py: {
       '<-': '=',
       '=': '==',
       ';': '\n',
       'string': 'str',
+      'func': 'def',
     },
   }
 
@@ -118,7 +120,9 @@ class Compiler {
     let temp: string
     while (!this.end) {
       if (this.brackets.includes(this.char)) {
-        this.addToAll(this.char, ['ts', 'py'])
+        if ('()'.includes(this.char)) {
+          this.addToAll(this.char, ['ts', 'py'])
+        }
         this.move()
         continue
       }

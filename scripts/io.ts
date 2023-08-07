@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 
-function output(message: string) {
+function output(message: any) {
   console.log(message)
   return message
 }

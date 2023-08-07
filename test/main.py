@@ -13,4 +13,4 @@ def write(path: str, text: str):
 # py
 x:int=0
 y:str="Hello, world!"
-output(y)
+output(x+1)
