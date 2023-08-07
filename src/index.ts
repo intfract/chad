@@ -15,6 +15,7 @@ class Compiler {
   formatting: string = ' \t'
   separator: string = ','
   stoppers: string = ';\n'
+  quotes: string = '"'
 
   maps: Record<string, Record<string, string>> = {
     'ts': {
@@ -27,7 +28,8 @@ class Compiler {
     'py': {
       '<-': '=',
       '=': '==',
-      ';': '\n'
+      ';': '\n',
+      'string': 'str',
     },
   }
 
@@ -43,6 +45,20 @@ class Compiler {
     this.i++
     if (this.i < this.code.length) return this.char = this.code[this.i]
     this.end = true
+  }
+
+  substitute(term: string, language: string) {
+    if (Object.keys(this.maps[language]).includes(term)) {
+      this[language] += this.maps[language][term]
+    } else {
+      this[language] += term
+    }
+  }
+
+  addToAll(term: string, languages: string[]) {
+    for (const language of languages) {
+      this[language] += term
+    }
   }
 
   isLetter(char: string): boolean {
@@ -70,6 +86,15 @@ class Compiler {
     return s
   }
 
+  extractQuote(quote: string): string {
+    let s = ''
+    while (!this.end && this.char !== quote) {
+      s += this.char
+      this.move()
+    }
+    return s
+  }
+
   extractOperator(): string {
     let s = ''
     while (!this.end && this.symbols.includes(this.char)) {
@@ -86,13 +111,22 @@ class Compiler {
   }
 
   compile(): Record<string, string> {
+    let temp: string
     while (!this.end) {
       if (this.formatting.includes(this.char)) {
-        this.ts += ' '
-        this.py += ' '
-        this.ts = this.ts.trimStart()
-        this.py = this.py.trimStart()
+        // this.ts += ' '
+        // if (!this.assignment.includes(temp)) this.py += ' '
         this.skipBlanks()
+        continue
+      }
+      if (this.stoppers.includes(this.char)) {
+        const prev = this.code[this.i - 1]
+        if (prev === this.char) throw new Error('unexpected end of line')
+        if (!this.stoppers.includes(prev)) {
+          this.ts += ';'
+          this.py += '\n'
+        }
+        this.move()
         continue
       }
       if (this.digits.includes(this.char)) {
@@ -102,22 +136,17 @@ class Compiler {
       }
       if (this.isLetter(this.char)) {
         const word = this.extractWord()
+        this.substitute(word, 'ts')
         if (this.assignment.includes(word)) {
-          // python does not use declaration keywords
-        } else if (this.blocks.includes(word)) {
-          this.py += word
+          this.ts += ' '
         } else {
-          this.py += word
+          this.substitute(word, 'py')
+          if (this.blocks.includes(word)) {
+            this.addToAll(' ', ['ts', 'py'])
+          }
         }
-        if (Object.keys(this.maps.ts).includes(word)) {
-          this.ts += this.maps.ts[word]
-        } else {
-          this.ts += word
-        }
+        temp = word
         continue
-      }
-      if (this.stoppers.includes(this.char)) {
-        this.ts += ';'
       }
       if (this.symbols.includes(this.char)) {
         const operator = this.extractOperator()
@@ -136,7 +165,14 @@ class Compiler {
         }
         continue
       }
-      this.move()
+      if (this.quotes.includes(this.char)) {
+        const quote = this.char
+        this.move()
+        const text = this.extractQuote(quote)
+        this.addToAll(quote + text + quote, ['ts', 'py'])
+        this.move()
+        continue
+      }
     }
     return {
       ts: this.ts,
@@ -148,3 +184,6 @@ class Compiler {
 const compiler = new Compiler(fs.readFileSync('giga.chad', 'utf-8'))
 const compiled = compiler.compile()
 console.log(compiled)
+for (const [key, value] of Object.entries(compiled)) {
+  fs.writeFileSync(`test/main.${key}`, value)
+}

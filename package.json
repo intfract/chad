@@ -15,5 +15,14 @@
   },
   "devDependencies": {
     "@types/node": "^20.4.8"
-  }
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "*.test.*",
+    "*.node.*",
+    "test/**/*"
+  ]
 }

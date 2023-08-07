@@ -1,0 +1,1 @@
+let x:number=0;let y:string="hello";
