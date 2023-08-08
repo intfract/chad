@@ -10,8 +10,8 @@ class Compiler {
   letters: string = 'qwertyuiopasdfghjklzxcvbnm'
   assignment: string[] = ['var', 'const']
   blocks: string[] = ['while', 'func']
-  symbols: string = ':<=>+-*/'
-  operators: string[] = ['<-', '->', '=', '<', '>', '<=', '=>', ':', '+', '-', '*', '/']
+  symbols: string = ':<=>+-*/&|!'
+  operators: string[] = ['<-', '->', '=', '<', '>', '<=', '=>', ':', '+', '-', '*', '/', '&&', '||', '!']
   formatting: string = ' \t'
   separator: string = ','
   stoppers: string = ';\n'
@@ -31,6 +31,9 @@ class Compiler {
       '<-': '=',
       '=': '==',
       ';': '\n',
+      '&&': ' and ',
+      '||': ' or ',
+      '!': ' not ',
       'string': 'str',
       'func': 'def',
     },
@@ -118,10 +121,18 @@ class Compiler {
 
   compile(): Record<string, string> {
     let temp: string
+    let indent: number = 0
     while (!this.end) {
+      if (this.py.at(-1) === '\n') this.py += '\t'.repeat(indent)
       if (this.brackets.includes(this.char)) {
-        if ('()'.includes(this.char)) {
+        if ('()[]'.includes(this.char)) {
           this.addToAll(this.char, ['ts', 'py'])
+        } else {
+          this.ts += this.char
+          if (this.char === '{') {
+            this.py += ':'
+            indent++
+          }
         }
         this.move()
         continue
@@ -136,7 +147,7 @@ class Compiler {
         const prev = this.code[this.i - 1]
         if (prev === this.char) throw new Error('unexpected end of line')
         if (!this.stoppers.includes(prev)) {
-          this.ts += ';'
+          if (prev !== '{') this.ts += ';'
           this.py += '\n'
         }
         this.move()

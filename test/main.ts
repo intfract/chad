@@ -15,4 +15,4 @@ function write(path: string, text: string) {
 }
 
 // ts
-let x:number=0;let y:string="Hello, world!";output(x+1);
+let x:number=0;let y:string="Hello, world!";while (x<4){x=x+1;output(x);}

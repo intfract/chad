@@ -1,4 +1,4 @@
-def output(message: str):
+def output(message):
   print(message)
   return message
 
@@ -13,4 +13,7 @@ def write(path: str, text: str):
 # py
 x:int=0
 y:str="Hello, world!"
-output(x+1)
+while (x<4):
+	x=x+1
+	output(x)
+	

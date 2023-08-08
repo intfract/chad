@@ -1,4 +1,4 @@
-def output(message: str):
+def output(message):
   print(message)
   return message
 
